@@ -27,8 +27,12 @@ var _request = function(path, callback, isJson){
 
         resp.on('end', function(){
             if (isJson) {
-                var loc = JSON.parse(body);            
-                callback(loc);
+                try {
+                    var loc = JSON.parse(body);            
+                    callback(loc);
+                } catch(e) {
+                    callback(new Error(body));
+                }
             } else {
                 var loc = body;
                 callback(loc);
