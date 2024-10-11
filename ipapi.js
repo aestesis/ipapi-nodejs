@@ -5,33 +5,33 @@ var https = require('https');
 
 var API_KEY = '';
 
-var headers   = {'user-agent': 'ipapi/ipapi-nodejs/0.4.1'};
+var headers = { 'user-agent': 'ipapi/ipapi-nodejs/0.4.1' };
 
-var fieldList = ['ip', 'city', 'region', 'country', 'postal', 
-                  'latitude', 'longitude', 'timezone', 'latlong'];
+var fieldList = ['ip', 'city', 'region', 'country', 'postal',
+    'latitude', 'longitude', 'timezone', 'latlong'];
 
 
-var _request = function(path, callback, isJson){
+var _request = function (path, callback, isJson) {
     var options = {
         host: 'ipapi.co',
         path: path,
         headers: headers
     };
 
-    var req = https.get(options, function(resp){
+    var req = https.get(options, function (resp) {
         var body = ''
 
-        resp.on('data', function(data){
+        resp.on('data', function (data) {
             body += data;
         });
 
-        resp.on('end', function(){
+        resp.on('end', function () {
             if (isJson) {
                 try {
-                    var loc = JSON.parse(body);            
+                    var loc = JSON.parse(body);
                     callback(loc);
-                } catch(e) {
-                    callback(new Error(body));
+                } catch (e) {
+                    callback({ error: new Error(body) });
                 }
             } else {
                 var loc = body;
@@ -40,13 +40,13 @@ var _request = function(path, callback, isJson){
         });
     });
 
-    req.on('error', function(e) {
-      callback(new Error(e));
+    req.on('error', function (e) {
+        callback({ error: new Error(e) });
     });
 };
 
 
-var location = function(callback, ip, key, field){
+var location = function (callback, ip, key, field) {
     var path;
     var isField = false;
 
@@ -73,15 +73,15 @@ var location = function(callback, ip, key, field){
             path = '/' + ip + '/json/';
         } else {
             path = '/json/';
-        }        
+        }
     }
 
-    if ((typeof key !== 'undefined') && (key !== '')){
+    if ((typeof key !== 'undefined') && (key !== '')) {
         path = path + '?key=' + key;
     } else {
-        if (API_KEY !== ''){
+        if (API_KEY !== '') {
             path = path + '?key=' + API_KEY;
-        } 
+        }
     }
 
     _request(path, callback, (!isField))
@@ -92,5 +92,5 @@ var location = function(callback, ip, key, field){
  * Query location for an IP address
  */
 module.exports = {
-    location : location,
+    location: location,
 };
